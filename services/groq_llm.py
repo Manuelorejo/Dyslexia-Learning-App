@@ -12,7 +12,7 @@ from groq import Groq
 
 load_dotenv()
 api_key = os.getenv("GROQ_API_KEY")
-client = Groq(api_key)
+client = Groq(api_key= api_key)
 
 def simplify_text(text: str) -> str:
     prompt = f"""
@@ -36,3 +36,4 @@ Text:
     )
 
     return response.choices[0].message.content.strip()
+
