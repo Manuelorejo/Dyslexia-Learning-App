@@ -15,6 +15,7 @@ from services.groq_llm import simplify_text
 from services.image_gen import generate_image
 from services.tts import text_to_speech
 from utils.text_utils import split_sentences
+from utils.doc_loader import load_txt, load_pdf
 
 st.set_page_config(layout="wide")
 
@@ -44,10 +45,24 @@ if "last_sentence" not in st.session_state:
 st.title("📘 AI Powered Learning Assistant for Dyslexic Students")
 
 
-user_text = st.text_area(
-    "Enter learning text or a situation",
-    height=200
+uploaded_file = st.file_uploader(
+    "Upload a learning document (PDF or TXT)",
+    type=["pdf", "txt"]
 )
+
+
+user_text = ""
+
+if uploaded_file:
+    if uploaded_file.name.endswith(".txt"):
+        user_text = load_txt(uploaded_file)
+    elif uploaded_file.name.endswith(".pdf"):
+        user_text = load_pdf(uploaded_file)
+else:
+    user_text = st.text_area(
+        "Enter learning text or a situation",
+        height=200
+    )
 
 # =========================================================
 # TEXT SIMPLIFICATION
@@ -57,6 +72,8 @@ if st.button("Generate Learning View"):
     with st.spinner("Simplifying text..."):
         simplified = simplify_text(user_text)
         sentences = split_sentences(simplified)
+        MAX_LINES = 10
+        sentences = sentences[:MAX_LINES]
 
     st.session_state.sentences = sentences
     st.session_state.index = 0
